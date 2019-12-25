@@ -98,12 +98,12 @@ Language: {}
         pass
 
 def main():
-    LettersFreq.set_file("letters_frequency.csv")
-    ita = FileLingua("ita.txt")
+    LettersFreq.set_file("Frequency_Tables/letters_frequency.csv")
+    ita = FileLingua("Test_Files/ita.txt")
     print(ita)
     ita.save_stat_file()
 
-    fr = FileLingua("fr.txt")
+    fr = FileLingua("Test_Files/fr.txt")
     print(fr)
     fr.save_stat_file()
 
