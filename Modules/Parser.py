@@ -2,7 +2,8 @@
 
 import csv, string
 
-#This script converts "letters_frequency_vertical.csv" in a more usable and useful .csv file reversing rows and columns
+
+# This script converts "letters_frequency_vertical.csv" in a more usable and useful .csv file reversing rows and columns
 
 def main():
     dict_f = {}
@@ -35,6 +36,7 @@ def main():
     #     csv_file = csv.DictWriter(file, fieldnames=list(string.ascii_lowercase))
     #     csv_file.writeheader()
     #     csv_file.writerows(list(dict_f.items()))
+
 
 if __name__ == '__main__':
     main()
