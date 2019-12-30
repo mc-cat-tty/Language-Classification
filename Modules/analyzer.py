@@ -1,6 +1,6 @@
 #!/bin/python
 
-#This module provides classes and constants to analyze the language of a text given as input (also form a file)
+# This module provides classes and constants to analyze the language of a text given as input (also form a file)
 
 import csv
 import math
@@ -13,6 +13,7 @@ class LettersFreq:
     letters_freq = {}
     filename = ''
 
+    @staticmethod
     def set_file(file_name):
         LettersFreq.filename = file_name
         LettersFreq._import_letters_freq()
@@ -70,7 +71,7 @@ Language: {}
         """.format(self.filename, self.chars, self.words, self.rows, chars_freq_scheme, self.lang)
 
     def _extract_chars_freq(self):  # Private method
-        if (not self.chars_freq):  # Check if chars_freq dict already exists
+        if not self.chars_freq:  # Check if chars_freq dict already exists
             for letter in charset:  # if not pupulate it
                 self.chars_freq[letter] = (self.txt.count(letter) * 100 / self.chars)
 

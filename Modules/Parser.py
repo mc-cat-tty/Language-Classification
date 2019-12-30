@@ -23,13 +23,11 @@ def main():
                             dict_f[lang] = {}
                             dict_f[lang][letter] = freq
         print(dict_f)
-        buf = []
-        buf.append("Language")
+        buf = ["Language"]
         buf += list(string.ascii_lowercase)
         csv_file_out.writerow(buf)
         for lang, freq in dict_f.items():
-            buf = []
-            buf.append(lang)
+            buf = [lang]
             buf += list(freq.values())
             csv_file_out.writerow(buf)
     # with open("letters_frequency.csv", "wt") as file:
