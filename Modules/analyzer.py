@@ -8,6 +8,19 @@ import string
 
 charset = list(string.ascii_lowercase)
 
+def gen_letters_freq_dict(txt):
+    '''
+    This function return a dictionary containing letter:frequency for the given text
+    :param txt: text to analyze
+    :return: dictionary containing letter:frequency association
+    '''
+    if not txt:
+        return {l:0.0 for l in charset}
+    freq_dict = {}
+    txt_len = len(txt)
+    for l in charset:
+        freq_dict.setdefault(l, txt.count(l)/txt_len*100)
+    return freq_dict
 
 class LettersFreq:
     letters_freq = {}
@@ -103,12 +116,16 @@ Language: {}
 
 
 def main():
-    LettersFreq.set_file("../Frequency_Tables/letters_frequency.csv")
+    LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
     ita = FileLingua("../Test_Files/ita.txt")
     print(ita)
     ita.save_stat_file()
 
     fr = FileLingua("../Test_Files/fr.txt")
+    print(fr)
+    fr.save_stat_file()
+
+    fr = FileLingua("../Test_Files/en.txt")
     print(fr)
     fr.save_stat_file()
 
