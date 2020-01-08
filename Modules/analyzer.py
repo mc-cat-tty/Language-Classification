@@ -125,9 +125,13 @@ def main():
     print(fr)
     fr.save_stat_file()
 
-    fr = FileLingua("../Test_Files/en.txt")
-    print(fr)
-    fr.save_stat_file()
+    en = FileLingua("../Test_Files/en.txt")
+    print(en)
+    en.save_stat_file()
+
+    es = FileLingua("../Test_Files/es.txt")
+    print(es)
+    es.save_stat_file()
 
 
 if __name__ == "__main__":
