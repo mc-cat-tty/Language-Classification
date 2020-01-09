@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %} Identifier {% endblock %}
+{% block content %}
+    <div class="container-fluid mh-100">
+        <div class="row">
+            <div class="col-lg-6" style="height: 90%; top: 5vh; border-right: 1px solid; border-color: silver; ">
+                <form action="/" method="POST" novalidate>
+                    {{ text_form.text.label }}
+                    {{ text_form.text(maxlength = 2000, class='form-control', placeholder="Insert text here", rows=7) }}
+                    <br>
+                    {{ text_form.submit(class='btn btn-primary mb-2') }}
+                </form>
+                <hr>
+                <form action="/" method="POST" enctype="multipart/form-data">
+                    <div class="custom-file">
+                        {{ file_form.file(class= 'custom-file-input') }}
+                        {{ file_form.file.label(class= 'custom-file-label') }}
+                    </div>
+                    <br> <br>
+                        {{ file_form.submit(class='btn btn-primary mb-2') }}
+                </form>
+            </div>
+
+            <div class="col-lg-6 text-center" style="height: 90vh; top: 5vh">
+                {{ stat_table }}
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelector('.custom-file-input').addEventListener('change',function(e){
+              var fileName = document.getElementById("file").files[0].name;
+              var nextSibling = e.target.nextElementSibling;
+              nextSibling.innerText = fileName;
+        })
+    </script>
+{% endblock %}

@@ -1,7 +1,5 @@
 #!/bin/python
 
-from Modules.analyzer import LettersFreq, FileLingua
-
 
 def main():
 

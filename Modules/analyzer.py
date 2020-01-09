@@ -5,29 +5,34 @@
 import csv
 import math
 import string
+from re import sub
 
 charset = list(string.ascii_lowercase)
 
-def gen_letters_freq_dict(txt):
-    '''
-    This function return a dictionary containing letter:frequency for the given text
-    :param txt: text to analyze
-    :return: dictionary containing letter:frequency association
-    '''
-    if not txt:
-        return {l:0.0 for l in charset}
-    freq_dict = {}
-    txt_len = len(txt)
-    for l in charset:
-        freq_dict.setdefault(l, txt.count(l)/txt_len*100)
-    return freq_dict
+def extract_chars_freq(text):
+    if not text:
+        return {l: 0.0 for l in charset}
+    text = text.lower()
+    text_len = len(sub('[^a-z]', '', text))  # Count only lowercase characters in text
+    return {l: (text.count(l) * 100 / text_len) for l in charset}
+
+def find_lang(text):
+    distances = {}
+    chars_freq = extract_chars_freq(text)
+    for lang, freq_dict in LettersFreq.letters_freq.items():
+        dist = 0
+        for (letter1, freq1), (letter2, freq2) in zip(freq_dict.items(), chars_freq.items()):
+            dist += (freq1 - freq2) ** 2
+        distances[math.sqrt(dist)] = lang
+    return distances[min(distances.keys())]
+
 
 class LettersFreq:
     letters_freq = {}
     filename = ''
 
     @staticmethod
-    def set_file(file_name):
+    def set_file(file_name): # TODO : docstring = class to initialize with the .csv file containing the reference table
         LettersFreq.filename = file_name
         LettersFreq._import_letters_freq()
 
@@ -46,72 +51,83 @@ class LettersFreq:
             # print(LettersFreq.letters_freq)
 
 
-class FileLingua(LettersFreq):
-    def __init__(self, filename):
-        self.filename = filename
-        file = open(filename, "rt")
-        self.txt = file.read()
-        self.rows = len(self.txt.split('\n')) - 1
-        self.words = len(self.txt.split())
-        self.chars = len(self.txt)
+class TestoLingua(LettersFreq):
+    def __init__(self, text):
+        self.text = text
+        self.rows = len(self.text.split('\n'))
+        self.words = len(self.text.split())
+        self.chars = len(self.text)
         self.chars_freq = {}  # Frequency of each alphabet char
         self.lang = ''  # Language
-        self.distances = {}  # Distance between file chars freq and refernce chars freq
-        file.close()
+        self.distances = {}  # Distance between file chars freq and reference chars freq
         self._extract_chars_freq()
         self._find_lang()
 
     def __repr__(self):  # Overriding object method
-        return "\"%s\" have %d chars, %d words, %d rows. Written in %s language." % (
-            self.filename, self.chars, self.words, self.rows, self.lang)
+        return "This text have {} chars, {} words, {} rows. Written in {} language." .format(
+            self.chars, self.words, self.rows, self.lang)
 
     def __str__(self):
-        return "\"%s\" [chars=%d, words=%d, rows=%d, language=%s]" % (
-            self.filename, self.chars, self.words, self.rows, self.lang)
+        return "\"{:.10}...\" [chars={}, words={}, rows={}, language={}]".format(
+            self.text, self.chars, self.words, self.rows, self.lang)
 
-    def file_format(self):
+    def stat_format(self):
         chars_freq_scheme = ''
         for letter, freq in self.chars_freq.items():
             chars_freq_scheme += "{:>20} : {}\n".format(letter, freq)
         return """\
-Filename: {}
+Text: {:.10}...
 Chars number: {}
 Words number: {}
 Rows number: {}
 Chars frequency:
 {}
 Language: {}
-        """.format(self.filename, self.chars, self.words, self.rows, chars_freq_scheme, self.lang)
+            """.format(self.text, self.chars, self.words, self.rows, chars_freq_scheme, self.lang)
+
+    def stat(self):  # statistics
+        return {"Chars number": self.chars, "Words number": self.words, "Rows number": self.rows,
+                "Language": self.lang, "Chars frequency": {l:'{}%'.format(round(f, 2)) for l, f in self.chars_freq.items()}}
 
     def _extract_chars_freq(self):  # Private method
         if not self.chars_freq:  # Check if chars_freq dict already exists
-            for letter in charset:  # if not pupulate it
-                self.chars_freq[letter] = (self.txt.count(letter) * 100 / self.chars)
+            self.chars_freq = extract_chars_freq(self.text)
 
     def _find_lang(self):
-        distances = {}
-        for lang, freq_dict in LettersFreq.letters_freq.items():
-            dist = 0
-            for (letter, freq1), (letter, freq2) in zip(freq_dict.items(), self.chars_freq.items()):
-                dist += (freq1 - freq2) ** 2
-            distances[math.sqrt(dist)] = lang
-        # print(distances) #Debug
-        self.lang = distances[min(distances.keys())]
+        self.lang = find_lang(self.text)
 
-    def save_stat_file(self):
+class FileLingua(TestoLingua):
+    def __init__(self, filename):
+        self.filename = filename
+        file = open(filename, "rt")
+        super().__init__(file.read())
+        file.close()
+        self.rows -= 1 # len() counts also the last void line
+
+    def __repr__(self):  # Overriding object method
+        return '"{}" '.format(self.filename) + super().__repr__()
+
+    def __str__(self):
+        return '"{}" '.format(self.filename) + super().__str__()
+
+    def stat_format(self):
+        return "Filename: {}\n".format(self.filename) + super().stat_format()
+
+    def stat_file(self):
         filename = self.filename.rsplit('.', 1)[0] + ".stat"  # split starting from the right
         file = open(filename, "wt")
-        file.write(self.file_format())
+        file.write(self.stat_format())
         file.close()
+    
+    # def stat(self):
+    #     d =  super().stat()
+    #     d.setdefault("Filename", self.filename)
+    #     return d.update({"Filename": self.filename})
 
-    def save_csv_file(self):
+    def csv_file(self):  # TODO
         pass
 
-    def save_json_file(self):
-        pass
-
-    def evaluate_quality(self):
-        '''implements Twitter API to estimate a quality of reconaissance'''
+    def json_file(self):  # TODO
         pass
 
 
@@ -119,19 +135,19 @@ def main():
     LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
     ita = FileLingua("../Test_Files/ita.txt")
     print(ita)
-    ita.save_stat_file()
+    ita.stat_file()
 
     fr = FileLingua("../Test_Files/fr.txt")
     print(fr)
-    fr.save_stat_file()
+    fr.stat_file()
 
     en = FileLingua("../Test_Files/en.txt")
     print(en)
-    en.save_stat_file()
+    en.stat_file()
 
     es = FileLingua("../Test_Files/es.txt")
     print(es)
-    es.save_stat_file()
+    es.stat_file()
 
 
 if __name__ == "__main__":
