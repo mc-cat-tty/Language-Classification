@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %} Quality Evaluator {% endblock %}
+{% block head %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+			{% for key, value in data.items() %}
+				{% if value is string %}
+					['{{ key }}', '{{ value }}'],
+				{% else %}
+					['{{ key }}', {{ value }}],
+				{% endif %}
+			{% endfor %}
+        ]);
+
+        var options = {
+          title: 'Percentage Wikipedia pages used for evaluation',
+          is3D: true,
+            /*legend:{
+              position: 'labeled',
+            },*/
+            //sliceVisibilityThreshold: 0,
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+        chart.draw(data, options);
+      }
+ </script>
+{% endblock %}
+{% block content %}
+    <div style="margin: 10px 0 0 10px">
+        <div id="piechart_3d" style="width: 900px; height: 500px"></div>
+    </div>
+{% endblock %}

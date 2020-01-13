@@ -8,6 +8,8 @@ from werkzeug.utils import secure_filename
 from flask_table import Table, Col
 from Modules.analyzer import LettersFreq, TestoLingua, FileLingua
 from tempfile import TemporaryDirectory
+from Modules.wikiquality import QualityEvaluator
+from Modules.tweetrain import langs_R
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
@@ -67,6 +69,14 @@ def hello_world():
         stat_table = StatTable(items)
         return render_template('index.html', text_form=text_form, file_form=file_form, stat_table=stat_table)
     return render_template('index.html', text_form=text_form, file_form=file_form)
+
+@app.route("/quality")
+def pie_chart():
+    LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
+    q = QualityEvaluator(5)
+    data = {'Language' : 'Wikipedia pages'}
+    data.update({langs_R[l]:v for l, v in q.quality_parameters()['total'].items()})
+    return render_template("charts.html", data=data)
 
 
 if __name__ == '__main__':
