@@ -3,6 +3,7 @@
 {% block title %} Quality Evaluator {% endblock %}
 {% block head %}
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% if data %}
 <script type="text/javascript">
       google.charts.load("current", {packages:["corechart"]});
       google.charts.setOnLoadCallback(drawChart);
@@ -30,9 +31,45 @@
         chart.draw(data, options);
       }
  </script>
+{% endif %}
 {% endblock %}
 {% block content %}
-    <div style="margin: 10px 0 0 10px">
-        <div id="piechart_3d" style="width: 900px; height: 500px"></div>
+    <div class="container-fluid mh-100">
+            <div class="form-row text-center">
+                <div class="col-lg-4 text-center" style="left: 30%; margin-bottom: 5%">
+                    <form action="/quality" method="POST">
+                        {{ evaluate_form.pages_num.label }}
+                        {{ evaluate_form.pages_num(class="form-control text-center", placeholder="Insert Number", type="number", max="999", min="1") }}
+                        <br>
+                        {{ evaluate_form.submit(class="btn btn-primary mb-2") }}
+                        <br><br>
+                    </form>
+                    {% if pages_num %}
+                    <p>
+                    Number of Pages actually used: <span class="badge badge-success">{{ pages_num }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-lg-6 text-center">
+                    <div id="piechart_3d" style="width: 900px; height: 500px; left: 15px"></div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    {% if sensitivity %}
+                        Sensitivity
+                        <div class="progress" height="2px">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{sensitivity}}%" aria-valuenow="{{ sensitivity }}" aria-valuemin="0" aria-valuemax="100">{{sensitivity}}%</div>
+                        </div>
+                        <br><br>
+                    {% endif %}
+                    {% if specificity %}
+                        Specificity
+                        <div class="progress" height="2px">
+                            <div class="progress-bar" role="progressbar" style="background-color: #007bff; width: {{specificity}}%" aria-valuenow="{{ sensibility }}" aria-valuemin="0" aria-valuemax="100">{{specificity}}%</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
     </div>
 {% endblock %}

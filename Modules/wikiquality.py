@@ -37,7 +37,8 @@ class Dataset:
 class QualityEvaluator:
     def __init__(self, dataset_len):
         self.dataset = Dataset(dataset_len).get_dataset()
-        self._confusion_dict = {'true_pos': {}, 'false_neg': {}, 'false_pos': {}, 'true_neg': {}, 'total': {}}
+        self._confusion_dict = {'true_pos': {}, 'false_neg': {}, 'false_pos': {}, 'true_neg': {}, 'pages_num': {}}
+        self.total_dict = {'true_pos': 0, 'false_neg': 0, 'false_pos': 0, 'true_neg': 0, 'pages_num': 0}
         self._compile_confusion()
 
     def _compile_confusion(self):
@@ -48,7 +49,7 @@ class QualityEvaluator:
                     self._confusion_dict['true_pos'][l] += 1
                 else:
                     self._confusion_dict['false_neg'][l] += 1
-                self._confusion_dict['total'][l] += 1
+                self._confusion_dict['pages_num'][l] += 1
             else:
                 if predicted_lang == l:
                     self._confusion_dict['false_pos'][l] += 1
@@ -56,11 +57,14 @@ class QualityEvaluator:
                     self._confusion_dict['true_neg'][l] += 1
 
         for lang in langs.values():
-            for key in self._confusion_dict.keys():
-                self._confusion_dict[key].setdefault(lang, 0)
+            for param in self._confusion_dict.keys():
+                self._confusion_dict[param].setdefault(lang, 0)
             for page in self.dataset:
                 catalogue(page, lang)
-        #  TODO : remove void elements
+
+    def _compile_total(self):
+        for param in self.total_dict.keys():
+            self.total_dict[param] = sum(self._confusion_dict[param].values())
 
     def sensitivity(self):  # Proportion of actual positives that are correctly identified
         true_pos = sum(self._confusion_dict['true_pos'].values())
@@ -74,8 +78,13 @@ class QualityEvaluator:
 
     def quality_parameters(self):
         confusion_dict = self._confusion_dict
-        confusion_dict.update({'sensitivity': self.sensitivity(), 'sensibility': self.specificity()})
+        confusion_dict.update({'sensitivity': self.sensitivity(), 'specificity': self.specificity()})
         return confusion_dict
+
+    def get_total_dict(self):
+        if not self.total_dict['pages_num']:
+            self._compile_total()
+        return self.total_dict
 
 
 def main():
