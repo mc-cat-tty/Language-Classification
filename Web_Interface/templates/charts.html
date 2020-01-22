@@ -32,11 +32,42 @@
       }
  </script>
 {% endif %}
+{% if chart %}
+<script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+			{% for key, value in chart.items() %}
+				{% if value is string %}
+					['{{ key }}', '{{ value }}'],
+				{% else %}
+					['{{ key }}', {{ value }}],
+				{% endif %}
+			{% endfor %}
+        ]);
+
+        var options = {
+          title: 'Percentage of correct and wrong recognitions',
+          is3D: true,
+            legend:{
+              position: 'labeled',
+            },
+            sliceVisibilityThreshold: 0,
+            slices : {1: {offset: 0.2} }
+        };
+
+        var p_chart = new google.visualization.PieChart(document.getElementById('correct_wrong_chart_3d'));
+        p_chart.draw(data, options);
+      }
+ </script>
+{% endif %}
 {% endblock %}
 {% block content %}
     <div class="container-fluid mh-100">
             <div class="form-row text-center">
-                <div class="col-lg-4 text-center" style="left: 30%; margin-bottom: 5%">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4 text-center" style="left: 33%; margin-bottom: 5%">
                     <form action="/quality" method="POST">
                         {{ evaluate_form.pages_num.label }}
                         {{ evaluate_form.pages_num(class="form-control text-center", placeholder="Insert Number", type="number", max="999", min="1") }}
@@ -46,16 +77,17 @@
                     </form>
                     {% if pages_num %}
                     <p>
-                    Number of Pages actually used: <span class="badge badge-success">{{ pages_num }}</span>
+                    Number of Pages actually used: <span class="badge badge-success" style="background-color: #28a745;">{{ pages_num }}</span>
                     </p>
                     {% endif %}
                 </div>
             </div>
             <div class="row text-center">
                 <div class="col-lg-6 text-center">
-                    <div id="piechart_3d" style="width: 900px; height: 500px; left: 15px"></div>
+                    <div id="piechart_3d" style="width: 900px; height: 500px; margin-left: -100px"></div>
+                    <div id="correct_wrong_chart_3d" style="width: 900px; height: 500px; margin-left: -100px"></div>
                 </div>
-                <div class="col-lg-6 text-center">
+                <div class="col-lg-6 text-center" style="border-left-style: solid; border-left-width: 1px">
                     {% if sensitivity %}
                         Sensitivity
                         <div class="progress" height="2px">
@@ -68,6 +100,12 @@
                         <div class="progress" height="2px">
                             <div class="progress-bar" role="progressbar" style="background-color: #007bff; width: {{specificity}}%" aria-valuenow="{{ sensibility }}" aria-valuemin="0" aria-valuemax="100">{{specificity}}%</div>
                         </div>
+                        <br><br>
+                        <hr>
+                        <br><br>
+                    {% endif %}
+                    {% if confusion_matrix %}
+                        {{ confusion_matrix }}
                     {% endif %}
                 </div>
             </div>
