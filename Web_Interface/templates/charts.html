@@ -67,7 +67,7 @@
     <div class="container-fluid mh-100">
             <div class="form-row text-center">
                 <div class="col-lg-4"></div>
-                <div class="col-lg-4 text-center" style="left: 33%; margin-bottom: 5%">
+                <div class="col-lg-4 text-center" style="margin-bottom: 5%">
                     <form action="/quality" method="POST">
                         {{ evaluate_form.pages_num.label }}
                         {{ evaluate_form.pages_num(class="form-control text-center", placeholder="Insert Number", type="number", max="999", min="1") }}
@@ -110,4 +110,10 @@
                 </div>
             </div>
     </div>
+<style>
+ table.my-table tr td:first-child {
+     background-color: #b8daff;
+     font-weight: bold;
+ }
+</style>
 {% endblock %}

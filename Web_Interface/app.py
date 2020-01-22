@@ -55,7 +55,7 @@ class ConfusionMatrix(Table):
     row = Col("")
     pos = Col("Actual Positive")
     neg = Col("Actual Negative")
-    classes = ['table', 'table-borderless', 'table-striped']
+    classes = ['table', 'table-borderless', 'table-striped', 'my-table']
     thead_classes = ['table-primary']
 
 
