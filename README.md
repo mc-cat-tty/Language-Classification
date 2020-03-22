@@ -44,3 +44,5 @@ or
 ```sh
 $ py Main.py
 ```
+
+Default frequency table is `letters_frequency_twitter.csv`
