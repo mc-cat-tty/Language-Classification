@@ -30,7 +30,8 @@ class Dataset:
             data.append({'lang': lang, 'text': page.text})
             langlinks = self._remove_unknown_langs(page.langlinks)
             for lang, page in langlinks.items():
-                data.append({'lang': lang, 'text': page.text})
+                if lang in langs.values():
+                    data.append({'lang': lang, 'text': page.text})
         return data
 
 
@@ -42,6 +43,7 @@ class QualityEvaluator:
         self._compile_confusion()
 
     def _compile_confusion(self):
+
         def catalogue(p, l):
             predicted_lang = langs[find_lang(p['text'])]
             if p['lang'] == l:
@@ -61,6 +63,7 @@ class QualityEvaluator:
                 self._confusion_dict[param].setdefault(lang, 0)
             for page in self.dataset:
                 catalogue(page, lang)
+
 
     def _compile_total(self):
         for param in self.total_dict.keys():

@@ -2,10 +2,12 @@
 
 # This module provides classes and constants to analyze the language of a text given as input (also form a file)
 
+import sys
 import csv
 import math
 import string
 from re import sub
+import logging
 
 charset = list(string.ascii_lowercase)
 
@@ -33,22 +35,36 @@ class LettersFreq:
 
     @staticmethod
     def set_file(file_name): # TODO : docstring = class to initialize with the .csv file containing the reference table
-        LettersFreq.filename = file_name
-        LettersFreq._import_letters_freq()
+        try:
+            LettersFreq.letters_freq = dict()
+            LettersFreq.filename = file_name
+            LettersFreq._import_letters_freq()
+        except:
+            logging.error("Some error occurred during LettersFreq initialization")
+            raise Exception
+        else:
+            logging.info("LettersFreq initialized")
 
     @staticmethod
     def _import_letters_freq():
-        with open(LettersFreq.filename, "r") as file:
-            csv_file = csv.DictReader(file, delimiter=',')
-            for row in csv_file:
-                row = dict(row)  # Convert row to dict
-                lang = row['Language']
-                del row['Language']  # Remove 'Language' fields
-                for letter, freq in row.items():
-                    row[letter] = float(freq.strip("%"))  # Convert form num% to float
-                # print(row)
-                LettersFreq.letters_freq[lang] = row  # Remain only a dict of letter:frequency
-            # print(LettersFreq.letters_freq)
+        try:
+            with open(LettersFreq.filename, "r") as file:
+                csv_file = csv.DictReader(file, delimiter=',')
+                for row in csv_file:
+                    row = dict(row)  # Convert row to dict
+                    lang = row['Language']
+                    del row['Language']  # Remove 'Language' fields
+                    for letter, freq in row.items():
+                        row[letter] = float(freq.strip("%"))  # Convert form num% to float
+                    # print(row)
+                    LettersFreq.letters_freq[lang] = row  # Remain only a dict of letter:frequency
+                logging.debug(LettersFreq.letters_freq)
+        except FileNotFoundError:
+            logging.WARNING("File containing letter frequency table not found")
+        except IOError:
+            logging.WARNING("Error while decoding file containing text to analyze")
+        except:
+            logging.WARNING("Error while opening file containing text to analyze")
 
 
 class TestoLingua(LettersFreq):
@@ -62,6 +78,7 @@ class TestoLingua(LettersFreq):
         self.distances = {}  # Distance between file chars freq and reference chars freq
         self._extract_chars_freq()
         self._find_lang()
+        logging.info("TestoLingua initialized")
 
     def __repr__(self):  # Overriding object method
         return "This text have {} chars, {} words, {} rows. Written in {} language." .format(
@@ -99,10 +116,18 @@ Language: {}
 class FileLingua(TestoLingua):
     def __init__(self, filename):
         self.filename = filename
-        file = open(filename, "rt")
+        try:
+            file = open(filename, "rt")
+        except FileNotFoundError:
+            logging.WARNING("File containing text to analyze not found")
+        except IOError:
+            logging.WARNING("Error while decoding file containing letter frequency table")
+        except:
+            logging.WARNING("Error while opening file containing letter frequency table")
         super().__init__(file.read())
         file.close()
         self.rows -= 1 # len() counts also the last void line
+        logging.info("FileLingua initialized")
 
     def __repr__(self):  # Overriding object method
         return '"{}" '.format(self.filename) + super().__repr__()
@@ -115,9 +140,20 @@ class FileLingua(TestoLingua):
 
     def stat_file(self):
         filename = self.filename.rsplit('.', 1)[0] + ".stat"  # split starting from the right
-        file = open(filename, "wt")
-        file.write(self.stat_format())
-        file.close()
+        try:
+            file = open(filename, "wt")
+        except FileNotFoundError:
+            logging.warning("Statistics file not found")
+        except IOError:
+            logging.warning("Error while accessing to statistics file")
+        except:
+            logging.warning("Error while opening statistics file")
+        else:
+            try:
+                file.write(self.stat_format())
+            except:
+                logging.warning("Error while writing to statistics file")
+            file.close()
     
     # def stat(self):
     #     d =  super().stat()
@@ -131,7 +167,8 @@ class FileLingua(TestoLingua):
         pass
 
 
-def main():
+def main():  # Test Method
+    logging.info("Testing some features")
     LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
     ita = FileLingua("../Test_Files/ita.txt")
     print(ita)

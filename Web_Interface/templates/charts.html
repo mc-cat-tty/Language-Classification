@@ -68,13 +68,24 @@
             <div class="form-row text-center">
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4 text-center" style="margin-bottom: 5%">
-                    <form action="/quality" method="POST">
+                    {%  if message %}
+                        <div class="alert alert-danger" role="alert">
+                         {{ message }}
+                        </div>
+                    {% endif %}
+                    <form action="/quality" method="POST" enctype="multipart/form-data">
                         {{ evaluate_form.pages_num.label }}
                         {{ evaluate_form.pages_num(class="form-control text-center", placeholder="Insert Number", type="number", max="999", min="1") }}
                         <br>
-                        {{ evaluate_form.submit(class="btn btn-primary mb-2") }}
+                        <div class="custom-file">
+                            {{ evaluate_form.file(class="custom-file-input", accept=".csv") }}
+                            {{ evaluate_form.file.label(class="custom-file-label") }}
+                        </div>
                         <br><br>
+                        {{ evaluate_form.submit(class="btn btn-primary mb-2") }}
+                        <br>
                     </form>
+
                     {% if pages_num %}
                     <p>
                     Number of Pages actually used: <span class="badge badge-success" style="background-color: #28a745;">{{ pages_num }}</span>
@@ -87,7 +98,7 @@
                     <div id="piechart_3d" style="width: 900px; height: 500px; margin-left: -100px"></div>
                     <div id="correct_wrong_chart_3d" style="width: 900px; height: 500px; margin-left: -100px"></div>
                 </div>
-                <div class="col-lg-6 text-center" style="border-left-style: solid; border-left-width: 1px">
+                <div class="col-lg-6 text-center" style="border-left-style: solid; border-left-width: 1px; border-left-color: #c0c0c0">
                     {% if sensitivity %}
                         Sensitivity
                         <div class="progress" height="2px">
@@ -116,4 +127,11 @@
      font-weight: bold;
  }
 </style>
+<script>
+    document.querySelector('.custom-file-input').addEventListener('change',function(e){
+          var fileName = document.getElementById("file").files[0].name;
+          var nextSibling = e.target.nextElementSibling;
+          nextSibling.innerText = fileName;
+    })
+</script>
 {% endblock %}

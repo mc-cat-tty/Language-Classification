@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, flash, redirect, url_for, current_app
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
 from wtforms import TextAreaField, SubmitField, IntegerField
@@ -10,12 +10,19 @@ from Modules.analyzer import LettersFreq, TestoLingua, FileLingua
 from tempfile import TemporaryDirectory
 from Modules.wikiquality import QualityEvaluator
 from Modules.tweetrain import langs_R
+import logging
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
 app.config['SECRET_KEY'] = os.urandom(20).hex()
 
-LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
+dirname = os.path.dirname(__file__)
+tableFilename = os.path.join(dirname, "../Frequency_Tables/letters_frequency_twitter.csv")
+LettersFreq.set_file(tableFilename)
+
+def start():
+    app.run()
+    logging.info('App started')
 
 class TextForm(FlaskForm):
     text = TextAreaField('Text to recognize: ', validators=[DataRequired()])
@@ -49,6 +56,7 @@ class FileForm(FlaskForm):
 
 class EvaluateForm(FlaskForm):
     pages_num = IntegerField("Number of Wikipedia's pages to use for evaluation", validators=[DataRequired()])
+    file = FileField("Choose a file...", validators=[FileRequired()])
     submit = SubmitField("Evaluate")
 
 class ConfusionMatrix(Table):
@@ -66,15 +74,18 @@ class ConfusionMatrixItem(object):
         self.neg = neg
 
 @app.route('/', methods=['GET', 'POST'])
-def hello_world():
+def home():
+    LettersFreq.set_file(tableFilename)  # Original Table
     text_form = TextForm()
     file_form = FileForm()
     if text_form.validate_on_submit() or file_form.validate_on_submit():
+        logging.info("Valid text submitted. Analyzing...")
         if text_form.validate_on_submit():
             t = TestoLingua(text_form.text.data)
         else:
             file = file_form.file.data
             filename = secure_filename(file.filename)
+            logging.info("Filename secured")
             with TemporaryDirectory() as tmp_dir:
                 filepath = os.path.join(tmp_dir, filename)
                 file.save(filepath)
@@ -91,25 +102,40 @@ def hello_world():
 @app.route("/quality", methods=['GET', 'POST'])
 def pie_chart():
     evaluate_form = EvaluateForm()
-    file_form = FileForm()  # TODO
     if evaluate_form.validate_on_submit():
-        LettersFreq.set_file("../Frequency_Tables/letters_frequency_twitter.csv")
-        q = QualityEvaluator(evaluate_form.pages_num.data)
-        quality_parameters = q.quality_parameters()
-        total = q.get_total_dict()
-        items = [ConfusionMatrixItem("Predicted Positive", total['true_pos'], total['false_neg']), ConfusionMatrixItem("Predicted Negative", total['false_neg'], total['true_neg'])]
-        confusion_matrix = ConfusionMatrix(items)
-        sensitivity = q.sensitivity()
-        specificity = q.specificity()
-        pages_num = total['pages_num']
-        data = {'Language' : 'Wikipedia pages'}
-        data.update({langs_R[l]:v for l, v in quality_parameters['pages_num'].items()})
-        chart =  {'Parameter' : 'Percent of the total'}
-        chart.update({"Correct": total["true_pos"]+total["true_neg"], "Wrong": total["false_pos"]+total["false_neg"]})
-        return render_template("charts.html", evaluate_form=evaluate_form, data=data, sensitivity=sensitivity*100,
-                               specificity=specificity*100, pages_num=pages_num, chart=chart, file_form=file_form, confusion_matrix=confusion_matrix)
+        logging.info("Valid data submitted. Estimating...")
+        file = evaluate_form.file.data
+        filename = secure_filename(file.filename)
+        logging.info("Filename secured")
+        with TemporaryDirectory() as tmp_dir:
+            filepath = os.path.join(tmp_dir, filename)
+            file.save(filepath)
+            logging.info("File saved in temporary directory")
+            try:
+                LettersFreq.set_file(filepath)
+            except:
+                logging.error("File format Error. LettersFreq class is not able to initialize frequency table")
+                return render_template("charts.html", evaluate_form=evaluate_form, message="File format Error")
+            try:
+                q = QualityEvaluator(evaluate_form.pages_num.data)
+            except:
+                logging.error("QualityEvaluator class error. File uploaded doesn't contain all supported languages")
+                return render_template("charts.html", evaluate_form=evaluate_form, message="File doesn't contain all supported languages")
+            quality_parameters = q.quality_parameters()
+            total = q.get_total_dict()
+            items = [ConfusionMatrixItem("Predicted Positive", total['true_pos'], total['false_neg']), ConfusionMatrixItem("Predicted Negative", total['false_neg'], total['true_neg'])]
+            confusion_matrix = ConfusionMatrix(items)
+            sensitivity = q.sensitivity()
+            specificity = q.specificity()
+            pages_num = total['pages_num']
+            data = {'Language' : 'Wikipedia pages'}
+            data.update({langs_R[l]:v for l, v in quality_parameters['pages_num'].items()})
+            chart = {'Parameter' : 'Percent of the total'}
+            chart.update({"Correct": total["true_pos"]+total["true_neg"], "Wrong": total["false_pos"]+total["false_neg"]})
+            return render_template("charts.html", evaluate_form=evaluate_form, data=data, sensitivity=sensitivity*100,
+                               specificity=specificity*100, pages_num=pages_num, chart=chart, confusion_matrix=confusion_matrix)
     return render_template("charts.html", evaluate_form=evaluate_form)
 
 
 if __name__ == '__main__':
-    app.run()
+    start()
