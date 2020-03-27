@@ -8,6 +8,7 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 * [Features](#features)
 * [Technologies](#technologies)
 * [Launch](#launch)
+* [Usage](#usage)
 
 ## Project Status
 
@@ -46,3 +47,8 @@ $ py Main.py
 ```
 
 Default frequency table is `letters_frequency_twitter.csv`
+
+## Usage
+
+If you want to use `tweetrain.py`'s functions, you have to insert your personal Twitter tokens.
+Look at the first four uppercase variables and fill in double quotes with the proper value.
