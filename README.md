@@ -32,7 +32,7 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 
 ## Requirements
 
-Use one of the following commands:
+Use one of the following commands (according to the configuration of your environment):
 
 ```sh
 $ pip install -r requirements.txt
