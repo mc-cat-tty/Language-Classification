@@ -1,11 +1,11 @@
-#!/bin/python
+#/usr/bin/env python
 
 """
 This module provides functions to generate ("train") letters frequency tables and to evaluate analyzer accuracy
 """
 
 import tweepy, re, csv
-from Modules.analyzer import extract_chars_freq, charset
+from Modules.analyzer import extract_chars_freq, charset, LettersFreq
 import logging
 
 CONSUMER_TOKEN = ""  # Substitute with your own values

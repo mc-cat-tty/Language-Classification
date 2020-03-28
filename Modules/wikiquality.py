@@ -1,9 +1,9 @@
-#!/bin/python
+#/usr/bin/env python
 
 from wikipediaapi import Wikipedia
 import requests
 from Modules.analyzer import find_lang, LettersFreq
-from Modules.tweetrain import langs
+from Modules.tweetrain import langs, langs_R
 
 
 class Dataset:
@@ -11,13 +11,13 @@ class Dataset:
         self.dataset_len = dataset_len
 
     def _remove_unknown_langs(self, pages):
-        return {lang: page for lang, page in pages.items() if lang in langs.values()}
+        return {lang: page for lang, page in pages.items() if lang in LettersFreq.supported_langs}
 
     def _get_random_page(
             self):  # This function use web API because in wikipediaapi isn't implemented any function to get a random page
         while True:
             page = requests.get("https://en.wikipedia.org/api/rest_v1/page/random/summary").json()
-            if page['lang'] in langs.values():
+            if page['lang'] in LettersFreq.supported_langs:
                 return page
 
     def get_dataset(self):
@@ -30,7 +30,7 @@ class Dataset:
             data.append({'lang': lang, 'text': page.text})
             langlinks = self._remove_unknown_langs(page.langlinks)
             for lang, page in langlinks.items():
-                if lang in langs.values():
+                if lang in LettersFreq.supported_langs:
                     data.append({'lang': lang, 'text': page.text})
         return data
 
@@ -58,7 +58,7 @@ class QualityEvaluator:
                 else:
                     self._confusion_dict['true_neg'][l] += 1
 
-        for lang in langs.values():
+        for lang in LettersFreq.supported_langs:
             for param in self._confusion_dict.keys():
                 self._confusion_dict[param].setdefault(lang, 0)
             for page in self.dataset:

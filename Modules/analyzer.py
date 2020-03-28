@@ -1,4 +1,4 @@
-#!/bin/python
+#/usr/bin/env python
 
 # This module provides classes and constants to analyze the language of a text given as input (also form a file)
 
@@ -8,6 +8,43 @@ import math
 import string
 from re import sub
 import logging
+
+langs = {  # Languages
+    "English": "en",
+    # "Arabic": "ar",  # Languages with non-latin alphabet have been commented
+    # "Bengali": "bn",
+    "Czech": "cs",
+    "Danish": "da",
+    "German": "de",
+    # "Greek": "el",
+    "Spanish": "es",
+    #"Persian": "fa",
+    "Finnish": "fi",
+    "Filipino": "fil",
+    "French": "fr",
+    # "Hebrew": "he",
+    # "Hindi": "hi",
+    "Hungarian": "hu",
+    "Indonesian": "id",
+    "Italian": "it",
+    # "Japanese": "ja",
+    # "Korean": "ko",
+    #"Malay": "msa",
+    "Dutch": "nl",
+    "Norwegian": "no",
+    "Polish": "pl",
+    "Portuguese": "pt",
+    "Romanian": "ro",
+    # "Russian": "ru",
+    "Swedish": "sv",
+    # "Thai": "th",
+    #"Turkish": "tr",
+    # "Ukrainian": "uk",
+    # "Urdu": "ur",
+    "Vietnamese": "vi"
+    }
+
+langs_R = {v:k for k, v in langs.items()} # Reversed langs
 
 charset = list(string.ascii_lowercase)
 
@@ -32,6 +69,8 @@ def find_lang(text):
 class LettersFreq:
     letters_freq = {}
     filename = ''
+    supported_langs = []
+	
 
     @staticmethod
     def set_file(file_name): # TODO : docstring = class to initialize with the .csv file containing the reference table
@@ -39,6 +78,7 @@ class LettersFreq:
             LettersFreq.letters_freq = dict()
             LettersFreq.filename = file_name
             LettersFreq._import_letters_freq()
+            LettersFreq.supported_langs = [langs[lang] for lang in LettersFreq.letters_freq.keys()]
         except:
             logging.error("Some error occurred during LettersFreq initialization")
             raise Exception
@@ -60,11 +100,14 @@ class LettersFreq:
                     LettersFreq.letters_freq[lang] = row  # Remain only a dict of letter:frequency
                 logging.debug(LettersFreq.letters_freq)
         except FileNotFoundError:
-            logging.WARNING("File containing letter frequency table not found")
+            logging.warning("File containing letter frequency table not found")
+            raise Exception
         except IOError:
-            logging.WARNING("Error while decoding file containing text to analyze")
+            logging.warning("Error while decoding file containing text to analyze")
+            raise Exception
         except:
-            logging.WARNING("Error while opening file containing text to analyze")
+            logging.warning("Error while opening file containing text to analyze")
+            raise Exception
 
 
 class TestoLingua(LettersFreq):
@@ -119,11 +162,11 @@ class FileLingua(TestoLingua):
         try:
             file = open(filename, "rt")
         except FileNotFoundError:
-            logging.WARNING("File containing text to analyze not found")
+            logging.warning("File containing text to analyze not found")
         except IOError:
-            logging.WARNING("Error while decoding file containing letter frequency table")
+            logging.warning("Error while decoding file containing letter frequency table")
         except:
-            logging.WARNING("Error while opening file containing letter frequency table")
+            logging.warning("Error while opening file containing letter frequency table")
         super().__init__(file.read())
         file.close()
         self.rows -= 1 # len() counts also the last void line
