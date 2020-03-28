@@ -1,3 +1,5 @@
+#/usr/bin/env python
+
 import Web_Interface.app
 
 def main():

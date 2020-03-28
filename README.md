@@ -7,6 +7,7 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 * [Project Status](#project-status)
 * [Features](#features)
 * [Technologies](#technologies)
+* [Requirements](#requirements)
 * [Launch](#launch)
 * [Usage](#usage)
 
@@ -25,8 +26,22 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 
 - **_Python_** 3.x
 - Python built-in libraries
-- Twitter API wrapped by **_Tweepy_** library
-- **_Django_**
+- Twitter API wrapped by **_tweepy_** library
+- **_wikipedia-api_** module
+- **_Flask_**
+
+## Requirements
+
+Use one of the following commands:
+
+```sh
+$ pip install -r requirements.txt
+```
+or
+
+```sh
+$ py -m pip install -r requirements.txt
+```
 
 ## Launch
 
@@ -45,6 +60,7 @@ or
 ```sh
 $ py Main.py
 ```
+After that, go to http://127.0.0.1:5000 or http://localhost:5000 and try out the web interface.
 
 Default frequency table is `letters_frequency_twitter.csv`
 

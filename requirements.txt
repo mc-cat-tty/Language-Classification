@@ -1,0 +1,6 @@
+flask
+flask_wtf
+werkzeug
+flask_table
+tweepy
+wikipedia-api
