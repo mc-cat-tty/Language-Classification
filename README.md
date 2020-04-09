@@ -6,6 +6,7 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 ## Table of Contents
 * [Project Status](#project-status)
 * [Features](#features)
+* [Math behind it](#math-behind-it)
 * [Technologies](#technologies)
 * [Requirements](#requirements)
 * [Launch](#launch)
@@ -21,6 +22,14 @@ Keep in mind that this project is programmed very poorly, however the logic behi
 - Convert .csv frequency table to Python dictionary
 - Convert Python dictionary to .csv frequency table
 - Generate frequency table starting from a set of Twitter messages
+
+## Math behind it
+
+By analyzing the frequency of every single letter is possible to detect the language of a given text.
+Once the characters' frequencies have been extracted, this information can be used as a representation of the text.
+We want to find out which is its language, so we have to determine which is the table's column that has the nearest values.
+To accomplish that, it can be used the Pythagorean theorem extended to 26 dimensions, the number of letters in the Latin alphabet.
+By computing the distance between the given text and each language inside the table, it's possible to define which is the nearest language.
 
 ## Technologies
 
