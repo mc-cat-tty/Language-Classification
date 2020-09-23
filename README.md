@@ -1,4 +1,4 @@
-# File-Language-Analyzer
+# File Language Analyzer
 > File Language Analyzer is a suite of Python modules, that provides objects, constants and functions, to recognise the language of a file, analyze its informations and process (elaborate and create) .csv letter frequency tables.
 <br>
 Keep in mind that this project is programmed very poorly, however the logic behind the adopted method is interesting.
